@@ -1,0 +1,481 @@
+p {
+  margin: 0;
+}
+
+.app {
+  display: flex;
+  height: 50vh;
+  height: 100dvh;
+  width: clamp(360px, 53vw, 1020px);
+  margin: 0 auto;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #0f1720;
+  background: #fff;
+}
+
+/* ---------- Боковая панель ---------- */
+.sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f5f6f8;
+  border-right: 1px solid #e4e6ea;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d7cff, #7b5cff);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.account {
+  flex: 1;
+  min-width: 0;
+}
+
+.accountName {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.accountStatus {
+  font-size: 12px;
+}
+
+.ok {
+  color: #2e9e44;
+}
+
+.bad {
+  color: #d33;
+}
+
+.newChatBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #2d7cff;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.newChatForm {
+  display: flex;
+  gap: 6px;
+  padding: 0 14px 10px;
+}
+
+.newChatInput {
+  flex: 1;
+  border: 1px solid #d5d9e0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.newChatInput:focus {
+  border-color: #2d7cff;
+}
+
+.newChatSubmit {
+  border: none;
+  border-radius: 10px;
+  background: #2d7cff;
+  color: #fff;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chatItem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.chatItem:hover {
+  background: #eef1f5;
+}
+
+.chatItemActive {
+  background: #e3ecff;
+}
+
+.chatBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.chatName {
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatTime {
+  font-size: 11px;
+  color: #8a919c;
+  flex-shrink: 0;
+}
+
+.chatPreview {
+  font-size: 13px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noChats {
+  padding: 20px 14px;
+  font-size: 13px;
+  color: #8a919c;
+  line-height: 1.4;
+}
+
+/* ---------- Основная область ---------- */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e4e6ea;
+  background: #fff;
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.chatTitle {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.chatSubtitle {
+  font-size: 12px;
+  color: #8a919c;
+}
+
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f5f6f8;
+}
+
+.row {
+  display: flex;
+}
+
+.rowIn {
+  justify-content: flex-start;
+}
+
+.rowOut {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.bubbleIn {
+  background: #fff;
+  color: #0f1720;
+  border-bottom-left-radius: 6px;
+}
+
+.bubbleOut {
+  background: linear-gradient(135deg, #2d7cff, #6a5cff);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.bubbleText {
+  white-space: pre-wrap;
+}
+
+.bubbleTime {
+  font-size: 11px;
+  align-self: flex-end;
+  opacity: 0.7;
+}
+
+.inputArea {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 16px;
+  border-top: 1px solid #e4e6ea;
+  background: #fff;
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid #d5d9e0;
+  border-radius: 18px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+.textarea:focus {
+  border-color: #2d7cff;
+}
+
+.sendBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #2d7cff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sendBtn:disabled {
+  background: #c7cdd6;
+  cursor: not-allowed;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #8a919c;
+  background: #f5f6f8;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.emptyHint {
+  font-size: 14px;
+}
+
+.error {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e5484d;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  z-index: 10;
+  max-width: 80%;
+  word-break: break-word;
+}
+
+/* ---------- Окно авторизации ---------- */
+.authWrap {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f6f8;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #0f1720;
+}
+
+.authCard {
+  width: 360px;
+  background: #fff;
+  border: 1px solid #e4e6ea;
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.authLogo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d7cff, #7b5cff);
+  color: #fff;
+  font-weight: 700;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.authTitle {
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.authSubtitle {
+  margin: 0 0 4px;
+  text-align: center;
+  font-size: 13px;
+  color: #8a919c;
+}
+
+.authLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.authInput {
+  border: 1px solid #d5d9e0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: white;
+}
+
+.authInput:focus {
+  border-color: #2d7cff;
+}
+
+.authError {
+  background: #fdecec;
+  color: #c33;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.authHint {
+  background: #fff6e5;
+  color: #8a6d1a;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.authSubmit {
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  background: #2d7cff;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.authSubmit:disabled {
+  background: #c7cdd6;
+  cursor: not-allowed;
+}
+
+/* ---------- Кнопка выхода ---------- */
+.logoutBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #e8eaee;
+  color: #5b6470;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.logoutBtn:hover {
+  background: #d9dde3;
+}
