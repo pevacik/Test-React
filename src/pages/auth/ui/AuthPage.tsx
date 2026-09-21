@@ -1,6 +1,6 @@
 import { useState, type SubmitEvent } from "react";
-import { authorize, type Credentials } from "../service/api";
-import styles from "../service/Chat.module.css";
+import { authorize, type Credentials } from "../../../features/auth";
+import styles from "./Auth.module.css";
 
 interface AuthPageProps {
   onAuthorized: (creds: Credentials) => void;

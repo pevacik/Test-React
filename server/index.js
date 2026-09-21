@@ -30,13 +30,13 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 const allowAll = allowedOrigins.includes("*");
-// Источники локальной разработки на любом порту (например, http://localhost:5174).
+
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 app.use(
   cors({
     origin(origin, callback) {
-      // Запросы без заголовка Origin (curl, сервер-к-серверу) разрешены.
+      
       if (
         allowAll ||
         !origin ||
@@ -54,12 +54,12 @@ app.use(
   }),
 );
 
-// --- Хранилище чатов в памяти (chatId -> сообщения) ---
-const chats = new Map(); // chatId -> { chatId, name, lastMessage, lastTimestamp }
-const messages = new Map(); // chatId -> Message[]
-let seqCounter = 0; // monotonic order of arrival: newer messages must always be lower
+
+const chats = new Map(); 
+const messages = new Map(); 
+let seqCounter = 0; 
 let instanceState = "unknown";
-let currentInstanceKey = null; // отслеживает активный инстанс, чтобы сбрасывать чаты при переключении
+let currentInstanceKey = null; 
 
 function touchChat(chatId, name, text, timestamp, seq) {
   const chat = chats.get(chatId) ?? {

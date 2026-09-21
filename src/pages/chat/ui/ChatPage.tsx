@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -8,15 +7,10 @@ import {
   type KeyboardEvent,
   type SubmitEvent,
 } from "react";
-import {
-  authorize,
-  fetchMessages,
-  sendMessage,
-  type Chat,
-  type Credentials,
-  type Message,
-} from "../service/api";
-import styles from "../service/Chat.module.css";
+import { sendMessage } from "../../../entities/chat";
+import { authorize, type Credentials } from "../../../features/auth";
+import { useChatMessages } from "../model";
+import styles from "./Chat.module.css";
 
 function formatTime(ts: number): string {
   if (!ts) return "";
@@ -36,49 +30,16 @@ interface ChatPageProps {
 }
 
 const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [messages, setMessages] = useState<Record<string, Message[]>>({});
-  const [instanceState, setInstanceState] = useState<string>("unknown");
+  const { chats, messages, instanceState, error, load, setError } =
+    useChatMessages();
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [newChatId, setNewChatId] = useState("");
   const [showNewChat, setShowNewChat] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const data = await fetchMessages();
-      setChats(data.chats);
-      // Убираем дубликаты по id (защита от повторной доставки).
-      const deduped: Record<string, Message[]> = {};
-      for (const [chatId, list] of Object.entries(data.messages)) {
-        const byId = new Map<string, Message>();
-        for (const m of list) byId.set(m.id, m);
-        // Сортируем по времени, чтобы сообщения шли друг за другом как в мессенджере.
-        deduped[chatId] = [...byId.values()].sort(
-          (a, b) => a.timestamp - b.timestamp || (a.seq ?? 0) - (b.seq ?? 0),
-        );
-      }
-      setMessages(deduped);
-      setInstanceState(data.instanceState ?? "unknown");
-      setError(null);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }, []);
-
-  useEffect(() => {
-    const initial = setTimeout(load, 0);
-    const id = setInterval(load, 2000);
-    return () => {
-      clearTimeout(initial);
-      clearInterval(id);
-    };
-  }, [load]);
 
   useEffect(() => {
     authorize(credentials).catch(() => {});
@@ -285,3 +246,4 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
 };
 
 export default ChatPage;
+
