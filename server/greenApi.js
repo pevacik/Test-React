@@ -80,3 +80,10 @@ export function setSettings(settings) {
 export function getStateInstance() {
   return apiRequest("GET", `/getStateInstance/${token()}`);
 }
+
+// Получение информации о контакте (имя и т.д.) по chatId.
+// Используется для поиска собеседника перед началом чата.
+// Примечание: для канала MAX имя метода может отличаться — см. CHANNEL в index.js.
+export function getContactInfo(chatId) {
+  return apiRequest("POST", `/getContactInfo/${token()}`, { chatId });
+}

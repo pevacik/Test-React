@@ -5,6 +5,7 @@ import express from "express";
 import {
   clearCredentials,
   deleteNotification,
+  getContactInfo,
   getStateInstance,
   receiveNotification,
   sendMessage,
@@ -60,6 +61,21 @@ const messages = new Map();
 let seqCounter = 0; 
 let instanceState = "unknown";
 let currentInstanceKey = null; 
+
+// Канал мессенджера: сейчас Telegram, позже MAX. Влияет на формат chatId
+// и на способ поиска собеседника (см. getContactInfo в greenApi.js).
+const CHANNEL = (process.env.GREEN_API_CHANNEL ?? "telegram").toLowerCase();
+
+// Приводим введённый запрос (номер / @username) к chatId канала.
+function normalizeChatId(query) {
+  const value = String(query ?? "").trim();
+  if (!value) return null;
+  if (value.startsWith("@")) return value; // username Telegram/MAX
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return null;
+  // Для Telegram/MAX номер используем как есть; WhatsApp добавляет "@c.us".
+  return CHANNEL === "whatsapp" ? `${digits}@c.us` : digits;
+}
 
 function touchChat(chatId, name, text, timestamp, seq) {
   const chat = chats.get(chatId) ?? {
@@ -288,6 +304,34 @@ app.post("/api/send", async (req, res, next) => {
         timestamp,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Поиск собеседника по номеру / username перед началом чата.
+app.post("/api/find", async (req, res, next) => {
+  try {
+    const { query } = req.body ?? {};
+    const chatId = normalizeChatId(query);
+    if (!chatId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Введите номер или @username",
+      });
+    }
+
+    let name = chatId;
+    let exists = false;
+    try {
+      const info = await getContactInfo(chatId);
+      name = info?.name || info?.contactName || info?.id || chatId;
+      exists = Boolean(info);
+    } catch {
+      exists = false;
+    }
+
+    res.json({ chatId, name, exists });
   } catch (err) {
     next(err);
   }

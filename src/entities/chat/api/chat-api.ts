@@ -1,5 +1,5 @@
 import { request } from "../../../shared/api";
-import type { ChatState } from "../model";
+import type { ChatState, Contact } from "../model";
 
 export function fetchMessages(): Promise<ChatState> {
   return request<ChatState>("/api/messages");
@@ -16,5 +16,12 @@ export function sendMessage(
   return request("/api/send", {
     method: "POST",
     body: JSON.stringify({ chatId, message: text }),
+  });
+}
+
+export function findContact(query: string): Promise<Contact> {
+  return request<Contact>("/api/find", {
+    method: "POST",
+    body: JSON.stringify({ query }),
   });
 }

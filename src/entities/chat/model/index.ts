@@ -1,1 +1,1 @@
-export type { Direction, Message, Chat, ChatState } from "./types";
+export type { Direction, Message, Chat, ChatState, Contact } from "./types";

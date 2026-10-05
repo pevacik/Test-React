@@ -1,1 +1,1 @@
-export { fetchMessages, fetchInstanceState, sendMessage } from "./chat-api";
+export { fetchMessages, fetchInstanceState, sendMessage, findContact } from "./chat-api";

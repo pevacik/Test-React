@@ -1,13 +1,12 @@
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type KeyboardEvent,
   type SubmitEvent,
 } from "react";
-import { sendMessage } from "../../../entities/chat";
+import { findContact, sendMessage, type Contact } from "../../../entities/chat";
 import { authorize, type Credentials } from "../../../features/auth";
 import { useChatMessages } from "../model";
 import styles from "./Chat.module.css";
@@ -24,6 +23,11 @@ function initials(name: string): string {
   return (name || "?").trim().charAt(0).toUpperCase();
 }
 
+interface ActiveChat {
+  chatId: string;
+  name: string;
+}
+
 interface ChatPageProps {
   credentials: Credentials;
   onLogout: () => void;
@@ -32,10 +36,11 @@ interface ChatPageProps {
 const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
   const { chats, messages, instanceState, error, load, setError } =
     useChatMessages();
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [activeChat, setActiveChat] = useState<ActiveChat | null>(null);
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [found, setFound] = useState<Contact | null>(null);
   const [input, setInput] = useState("");
-  const [newChatId, setNewChatId] = useState("");
-  const [showNewChat, setShowNewChat] = useState(false);
   const [sending, setSending] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,19 +50,7 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
     authorize(credentials).catch(() => {});
   }, [credentials]);
 
-  const activeChatId = useMemo(() => {
-    if (selectedChatId && chats.some((c) => c.chatId === selectedChatId)) {
-      return selectedChatId;
-    }
-    return chats[0]?.chatId ?? null;
-  }, [selectedChatId, chats]);
-
-  const activeChat = useMemo(
-    () => chats.find((c) => c.chatId === activeChatId) ?? null,
-    [chats, activeChatId],
-  );
-
-  const activeMessages = activeChatId ? (messages[activeChatId] ?? []) : [];
+  const activeMessages = activeChat ? (messages[activeChat.chatId] ?? []) : [];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,12 +65,12 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
 
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || !activeChatId || sending) return;
+    if (!text || !activeChat || sending) return;
 
     setError(null);
     setSending(true);
     try {
-      await sendMessage(activeChatId, text);
+      await sendMessage(activeChat.chatId, text);
       setInput("");
       if (textareaRef.current) textareaRef.current.style.height = "auto";
       await load();
@@ -95,13 +88,36 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
     }
   };
 
-  const submitNewChat = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSearch = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const id = newChatId.trim();
-    if (!id) return;
-    setSelectedChatId(id);
-    setNewChatId("");
-    setShowNewChat(false);
+    const value = query.trim();
+    if (!value || searching) return;
+
+    setError(null);
+    setFound(null);
+    setSearching(true);
+    try {
+      const contact = await findContact(value);
+      if (contact.exists) {
+        setFound(contact);
+      } else {
+        setError("Контакт не найден");
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const startChat = (chatId: string, name: string) => {
+    setActiveChat({ chatId, name });
+    setFound(null);
+    setQuery("");
+  };
+
+  const closeChat = () => {
+    setActiveChat(null);
   };
 
   const authorized = instanceState === "authorized";
@@ -120,13 +136,6 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
             </div>
           </div>
           <button
-            className={styles.newChatBtn}
-            onClick={() => setShowNewChat((v) => !v)}
-            title="Новый чат"
-          >
-            +
-          </button>
-          <button
             className={styles.logoutBtn}
             onClick={onLogout}
             title="Сменить аккаунт"
@@ -135,27 +144,47 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
           </button>
         </header>
 
-        {showNewChat && (
-          <form className={styles.newChatForm} onSubmit={submitNewChat}>
-            <input
-              className={styles.newChatInput}
-              value={newChatId}
-              onChange={(e) => setNewChatId(e.target.value)}
-              placeholder="chatId (id пользователя)"
-              autoFocus
-            />
-            <button className={styles.newChatSubmit} type="submit">
-              OK
+        <form className={styles.searchForm} onSubmit={handleSearch}>
+          <input
+            className={styles.searchInput}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Номер или @username"
+            autoFocus
+          />
+          <button
+            className={styles.searchBtn}
+            type="submit"
+            disabled={searching || !query.trim()}
+          >
+            {searching ? "…" : "Найти"}
+          </button>
+        </form>
+
+        {found && (
+          <div className={styles.foundCard}>
+            <div className={styles.avatar}>{initials(found.name)}</div>
+            <div className={styles.foundInfo}>
+              <div className={styles.foundName}>{found.name}</div>
+              <div className={styles.foundId}>{found.chatId}</div>
+            </div>
+            <button
+              className={styles.startChatBtn}
+              onClick={() => startChat(found.chatId, found.name)}
+            >
+              Начать чат
             </button>
-          </form>
+          </div>
         )}
 
         <div className={styles.chatList}>
           {chats.map((chat) => (
             <button
               key={chat.chatId}
-              className={`${styles.chatItem} ${chat.chatId === activeChatId ? styles.chatItemActive : ""}`}
-              onClick={() => setSelectedChatId(chat.chatId)}
+              className={`${styles.chatItem} ${
+                activeChat?.chatId === chat.chatId ? styles.chatItemActive : ""
+              }`}
+              onClick={() => startChat(chat.chatId, chat.name)}
             >
               <div className={styles.avatar}>{initials(chat.name)}</div>
               <div className={styles.chatBody}>
@@ -171,7 +200,7 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
           ))}
           {chats.length === 0 && (
             <div className={styles.noChats}>
-              <p>Пока нет чатов. Напишите боту или создайте чат по chatId.</p>
+              <p>Введите номер или @username, чтобы найти собеседника.</p>
             </div>
           )}
         </div>
@@ -183,6 +212,13 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
         {activeChat ? (
           <>
             <header className={styles.chatHeader}>
+              <button
+                className={styles.backBtn}
+                onClick={closeChat}
+                title="Назад к поиску"
+              >
+                ←
+              </button>
               <div className={styles.avatar}>{initials(activeChat.name)}</div>
               <div className={styles.headerText}>
                 <div className={styles.chatTitle}>{activeChat.name}</div>
@@ -233,10 +269,10 @@ const ChatPage = ({ credentials, onLogout }: ChatPageProps) => {
         ) : (
           <div className={styles.empty}>
             <div className={styles.emptyTitle}>
-              <p>Выберите чат</p>
+              <p>Поиск собеседника</p>
             </div>
             <div className={styles.emptyHint}>
-              <p>или создайте новый по кнопке «+» и введите chatId</p>
+              <p>Введите номер или @username в поле поиска слева и нажмите «Найти»</p>
             </div>
           </div>
         )}

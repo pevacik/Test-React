@@ -16,6 +16,12 @@ export interface Chat {
   lastTimestamp: number;
 }
 
+export interface Contact {
+  chatId: string;
+  name: string;
+  exists: boolean;
+}
+
 export interface ChatState {
   chats: Chat[];
   messages: Record<string, Message[]>;

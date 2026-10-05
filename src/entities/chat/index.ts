@@ -1,2 +1,2 @@
-export { fetchMessages, fetchInstanceState, sendMessage } from "./api";
-export type { Direction, Message, Chat, ChatState } from "./model";
+export { fetchMessages, fetchInstanceState, sendMessage, findContact } from "./api";
+export type { Direction, Message, Chat, ChatState, Contact } from "./model";
